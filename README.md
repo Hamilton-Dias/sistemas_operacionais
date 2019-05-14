@@ -18,3 +18,22 @@
 #Tercera versão
 
 #Uma thread controla cada conexão
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Para rodar
+
+#abra um terminal para rodar como o servidor
+#gcc server.c -o worker -w -lpthread -w
+#abra quantos terminais quiser para se conectar como cliente
+# nc localhost 8888
