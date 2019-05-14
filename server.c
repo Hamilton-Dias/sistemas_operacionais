@@ -1,3 +1,6 @@
+/* Alunos: 	Hamilton Dias 	15102816
+   			Matheus Akio 	*/
+
 #include <stdio.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
@@ -14,17 +17,15 @@
 void *func(void *socketfd){
 
 	//converte de volta para int
-	int c = *((int *)socketfd);
+	int newid = *((int *)socketfd);
 
-	time_t ticks;
 	char buffer[SIZE];
+	bzero(&buffer, sizeof(buffer));
 
-	//get the time
-	ticks = time(NULL);
-
-	//storing inside buffer the message
-	snprintf(buffer, sizeof(buffer), "%s\n", ctime(&ticks));
-	write(c, buffer, strlen(buffer));
+	while(1){
+		read(newid, buffer, sizeof(buffer));
+		printf("Mensagem recebida: %s\t", buffer);
+	}
 
 	return;
 }
