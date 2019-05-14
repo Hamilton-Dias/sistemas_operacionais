@@ -11,6 +11,24 @@
 #define PORT 				8888
 #define SIZE 				100
 
+void *func(void *socketfd){
+
+	//converte de volta para int
+	int c = *((int *)socketfd);
+
+	time_t ticks;
+	char buffer[SIZE];
+
+	//get the time
+	ticks = time(NULL);
+
+	//storing inside buffer the message
+	snprintf(buffer, sizeof(buffer), "%s\n", ctime(&ticks));
+	write(c, buffer, strlen(buffer));
+
+	return;
+}
+
 void main(){
 
 	/* AF_INET    -> IPv4 Internet Protocols
@@ -50,8 +68,12 @@ void main(){
 	printf("Server is now listening\n");
 
 	struct sockaddr aux;
-	time_t ticks;
-	char buffer[SIZE];
+
+	//Cria o numero de threads com base no máximo de conexões
+	pthread_t thread[MAX_CONNECTIONS];
+
+	//contador para as threads
+	int i=0;
 
 	while(1){
 		//Get the lenght of the struct for later
@@ -66,12 +88,10 @@ void main(){
 
 		printf("Client accepted..\n");
 
-		//get the time
-		ticks = time(NULL);
+		//Coloca a thread para gerenciar a conexão
+		pthread_create(&thread[i], NULL, func, (void*)&acc);
 
-		//storing inside buffer the message
-		snprintf(buffer, sizeof(buffer), "%s\n", ctime(&ticks));
-		write(acc, buffer, strlen(buffer));
+		pthread_join(thread[i], NULL);
 
 		close(acc);
 		sleep(1);
