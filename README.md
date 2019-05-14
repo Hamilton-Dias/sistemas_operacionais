@@ -1,3 +1,7 @@
 # sistemas_operacionais
 
-#trabalho
+#primeira versão
+
+#tem o socket criado
+#bind, servidor rodando
+#Espera o cliente conectar

@@ -3,9 +3,13 @@
 #include <sys/socket.h>
 #include <netinet/in.h>			//For struct sockaddr_in
 #include <strings.h> 			//For bzero()
+#include <time.h>
+#include <sys/times.h>
+#include <errno.h>
 
 #define MAX_CONNECTIONS		5
 #define PORT 				8888
+#define SIZE 				100
 
 void main(){
 
@@ -43,17 +47,38 @@ void main(){
 		exit(0);
 	}
 
-	printf("Server is now listening");
+	printf("Server is now listening\n");
 
-	//Get the lenght of the struct for later
 	struct sockaddr aux;
-	int lenght = sizeof(aux);
+	time_t ticks;
+	char buffer[SIZE];
 
-	int acc = accept(socketfd, (struct sockaddr*)&servaddr, &lenght);
-	if (acc < 0){
-		printf("Client not accepted!\n");
-		exit(0);
+	while(1){
+		//Get the lenght of the struct for later
+		
+		int lenght = sizeof(aux);
+
+		int acc = accept(socketfd, (struct sockaddr*)&servaddr, &lenght);
+		if (acc < 0){
+			printf("Client not accepted!\n");
+			exit(0);
+		}
+
+		printf("Client accepted..\n");
+
+		//get the time
+		ticks = time(NULL);
+
+		//storing inside buffer the message
+		snprintf(buffer, sizeof(buffer), "%s\n", ctime(&ticks));
+		write(acc, buffer, strlen(buffer));
+
+		close(acc);
+		sleep(1);
+
 	}
+
+	close(socketfd);
 
 	return;
 }
