@@ -1,6 +1,3 @@
-/* Alunos: 	Hamilton Dias 	15102816
-   			Matheus Akio 	*/
-
 #include <stdio.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
@@ -13,6 +10,7 @@
 #define MAX_CONNECTIONS		5
 #define PORT 				8888
 #define SIZE 				100
+#define MAX 80 
 
 void *func(void *socketfd){
 
@@ -22,10 +20,16 @@ void *func(void *socketfd){
 	char buffer[SIZE];
 	bzero(&buffer, sizeof(buffer));
 
-	while(1){
-		read(newid, buffer, sizeof(buffer));
+	do{
+
+		if (strncmp(buffer, "mkdir\n", 6) == 0){
+            printf("pasta criada\n");
+    	}
+    	//Lendo mensagem e retornando a mensagem
+    	read(newid, buffer, sizeof(buffer));
+    	//resposta no servidor
 		printf("Mensagem recebida: %s\t", buffer);
-	}
+	}while(strncmp(buffer, "exit\n", 5) != 0);
 
 	return;
 }
@@ -35,6 +39,7 @@ void main(){
 	/* AF_INET    -> IPv4 Internet Protocols
 	   SOCK_STRAM -> Provides sequenced, reliable, two-way, connection-based byte streams.
 	                 An out-of-band data transmission mechanism may be supported.*/
+	//Criando Socket
 	int socketfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(socketfd < 0){
 		printf("Error in creating socket!!\n");
@@ -43,16 +48,17 @@ void main(){
 
 	printf("Socket created\n");
 
+	//Criando nome
 	struct sockaddr_in servaddr;
 	bzero(&servaddr, sizeof(servaddr));
 
 	// assign IP, PORT 
     servaddr.sin_family = AF_INET; 
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY); 
-    servaddr.sin_port = htons(PORT); 
+	servaddr.sin_port = htons(PORT); 
+		    
 
-
-	//Binds socket created and Addr to it
+	//Criando Bind
 	if(bind(socketfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) != 0 ){
 		printf("Binding failed \n");
 		exit(0);
@@ -81,6 +87,7 @@ void main(){
 		
 		int lenght = sizeof(aux);
 
+		//ACCEPT('RECEBENDO O SOCKET','NOME DO SOCKET', TAMANHO DESSE SOCKET)
 		int acc = accept(socketfd, (struct sockaddr*)&servaddr, &lenght);
 		if (acc < 0){
 			printf("Client not accepted!\n");
