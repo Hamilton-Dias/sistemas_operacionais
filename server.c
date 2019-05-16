@@ -10,29 +10,46 @@
 #define MAX_CONNECTIONS		5
 #define PORT 				8888
 #define SIZE 				100
-#define MAX 80 
+
+pthread_mutex_t	lock;
 
 void *func(void *socketfd){
-
 	//converte de volta para int
 	int newid = *((int *)socketfd);
+	char caso;
 
 	char buffer[SIZE];
 	bzero(&buffer, sizeof(buffer));
 
-	do{
+	strcpy(buffer, "Digite a operação que deseja realizar:\n\t1.Criar (Sub)diretório\n\t2.Remover (Sub)diretório\n\t3.Entrar em (sub)diretório\n\t4.Mostrar conteúdo do diretório\n\t5.Criar arquivo\n\t6.Remover arquivo\n\t7.Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
+    send(newid, buffer, strlen(buffer), 0);
 
+	do{
 		if (strncmp(buffer, "mkdir\n", 6) == 0){
-            printf("pasta criada\n");
-    	}
-    	//Lendo mensagem e retornando a mensagem
-    	read(newid, buffer, sizeof(buffer));
-    	//resposta no servidor
-		printf("Mensagem recebida: %s\t", buffer);
+			printf("teste\n");
+
+			pthread_mutex_lock(&lock);
+           	int check; 
+		    char* dirname = "Nova Pasta"; 	  
+		    check = mkdir(dirname); 		  
+		    // check if directory is created or not 
+		    if (!check) 
+		        printf("Pasta Criada\n"); 
+		    else  
+		        printf("ERRO\n");  
+		 
+            pthread_mutex_unlock(&lock);				    	
+		}	
+		//Lendo mensagem e retornando a mensagem
+			read(newid, buffer, sizeof(buffer));
+		//resposta no servidor
+			//printf("Mensagem recebida: %s\t", buffer);
 	}while(strncmp(buffer, "exit\n", 5) != 0);
 
 	return;
 }
+
+
 
 void main(){
 
