@@ -19,6 +19,10 @@
 
 #Uma thread controla cada conexão
 
+#Quarta versão
+
+#"Mkdir", "ls -l", "rm -r" e "cd"
+#funcionando
 
 
 

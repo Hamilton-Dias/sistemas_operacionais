@@ -21,29 +21,44 @@ void *func(void *socketfd){
 	char buffer[SIZE];
 	bzero(&buffer, sizeof(buffer));
 
-	strcpy(buffer, "Digite a operação que deseja realizar:\n\t1.Criar (Sub)diretório\n\t2.Remover (Sub)diretório\n\t3.Entrar em (sub)diretório\n\t4.Mostrar conteúdo do diretório\n\t5.Criar arquivo\n\t6.Remover arquivo\n\t7.Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
+	strcpy(buffer, "Digite a operação que deseja realizar:\n\tmkdir - Criar (Sub)diretório\n\trm -r - Remover (Sub)diretório\n\tcd - Entrar em (sub)diretório\n\tls -l - Mostrar conteúdo do diretório\n\t5.Criar arquivo\n\t6.Remover arquivo\n\t7.Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
     send(newid, buffer, strlen(buffer), 0);
 
 	do{
-		if (strncmp(buffer, "mkdir\n", 6) == 0){
-			printf("teste\n");
+		
 
-			pthread_mutex_lock(&lock);
-           	int check; 
-		    char* dirname = "Nova Pasta"; 	  
-		    check = mkdir(dirname); 		  
-		    // check if directory is created or not 
-		    if (!check) 
-		        printf("Pasta Criada\n"); 
-		    else  
-		        printf("ERRO\n");  
-		 
-            pthread_mutex_unlock(&lock);				    	
-		}	
+		if (strncmp(buffer, "mkdir ", 6) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);
+            printf("Pasta criada com sucesso\n");
+            pthread_mutex_unlock(&lock);
+        }
+
+        if (strncmp(buffer, "rm -r ", 6) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);
+            printf("Pasta excluida com sucesso\n");
+            pthread_mutex_unlock(&lock);
+        }
+
+        if (strncmp(buffer, "cd ", 3) == 0){
+            pthread_mutex_lock(&lock);
+            memmove(buffer, buffer + 3, strlen(buffer));
+            chdir(buffer);
+            printf("Entrando no diretorio %s\n", buffer);
+            pthread_mutex_unlock(&lock);
+         }
+
+         if (strncmp(buffer, "ls ", 3) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);
+            pthread_mutex_unlock(&lock);
+        }
+
 		//Lendo mensagem e retornando a mensagem
-			read(newid, buffer, sizeof(buffer));
-		//resposta no servidor
-			//printf("Mensagem recebida: %s\t", buffer);
+		bzero(&buffer, sizeof(buffer));
+		read(newid, buffer, sizeof(buffer));
+
 	}while(strncmp(buffer, "exit\n", 5) != 0);
 
 	return;
