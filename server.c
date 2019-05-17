@@ -21,7 +21,7 @@ void *func(void *socketfd){
 	char buffer[SIZE];
 	bzero(&buffer, sizeof(buffer));
 
-	strcpy(buffer, "Digite a operação que deseja realizar:\n\tmkdir - Criar (Sub)diretório\n\trm -r - Remover (Sub)diretório\n\tcd - Entrar em (sub)diretório\n\tls -l - Mostrar conteúdo do diretório\n\t5.Criar arquivo\n\t6.Remover arquivo\n\t7.Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
+	strcpy(buffer, "Digite a operação que deseja realizar:\n\tmkdir - Criar (Sub)diretório\n\trmdir - Remover (Sub)diretório\n\tcd - Entrar em (sub)diretório\n\tls -l - Mostrar conteúdo do diretório\n\ttouch - Criar arquivo\n\trm - Remover arquivo\n\techo- Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
     send(newid, buffer, strlen(buffer), 0);
 
 	do{
@@ -30,14 +30,14 @@ void *func(void *socketfd){
 		if (strncmp(buffer, "mkdir ", 6) == 0){
             pthread_mutex_lock(&lock);
             system(buffer);
-            printf("Pasta criada com sucesso\n");
+            printf("\nPasta criada\n");
             pthread_mutex_unlock(&lock);
         }
 
-        if (strncmp(buffer, "rm -r ", 6) == 0){
+        if (strncmp(buffer, "rmdir ", 6) == 0){
             pthread_mutex_lock(&lock);
             system(buffer);
-            printf("Pasta excluida com sucesso\n");
+            printf("\nPasta excluida\n");
             pthread_mutex_unlock(&lock);
         }
 
@@ -45,11 +45,38 @@ void *func(void *socketfd){
             pthread_mutex_lock(&lock);
             memmove(buffer, buffer + 3, strlen(buffer));
             chdir(buffer);
-            printf("Entrando no diretorio %s\n", buffer);
+            printf("\nEntrando no diretorio %s\n", buffer);
             pthread_mutex_unlock(&lock);
          }
 
          if (strncmp(buffer, "ls ", 3) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);
+            pthread_mutex_unlock(&lock);
+        }
+
+        if (strncmp(buffer, "touch ", 6) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);
+            printf("\nArquivo criado\n");
+            pthread_mutex_unlock(&lock);
+        }
+
+        if (strncmp(buffer, "rm ", 3) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);            
+            printf("Arquivo removido\n");
+            pthread_mutex_unlock(&lock);
+        }
+
+        if (strncmp(buffer, "echo ", 5) == 0){
+            pthread_mutex_lock(&lock);
+            system(buffer);
+            printf("Caracteres inseridos\n");
+            pthread_mutex_unlock(&lock);
+        }
+
+        if (strncmp(buffer, "cat ", 4) == 0){
             pthread_mutex_lock(&lock);
             system(buffer);
             pthread_mutex_unlock(&lock);

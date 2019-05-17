@@ -19,21 +19,28 @@
 
 #Uma thread controla cada conexão
 
+
+
 #Quarta versão
 
 #"Mkdir", "ls -l", "rm -r" e "cd"
 #funcionando
 
 
+#Quinta Versao
+
+#Todos os comandos implmentados
 
 
-
-
-
-
-
-
-
+#COMO USAR COMANDOS
+#mkdir nomepasta
+#rmdir nomepasta
+#cd diretorio
+#ls
+#touch nomearquivo.extensao
+#rm nomearquivo
+#echo "mesagem" >> nomearquivo.extensao
+#cat nomearquivo
 
 #Para rodar
 
