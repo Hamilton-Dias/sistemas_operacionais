@@ -7,7 +7,7 @@
 #include <sys/times.h>
 #include <errno.h>
 
-#define MAX_CONNECTIONS		5
+#define MAX_CONNECTIONS		2
 #define PORT 				8888
 #define SIZE 				100
 
@@ -24,7 +24,7 @@ void *func(void *socketfd){
 	strcpy(buffer, "Digite a operação que deseja realizar:\n\tmkdir - Criar (Sub)diretório\n\trmdir - Remover (Sub)diretório\n\tcd - Entrar em (sub)diretório\n\tls -l - Mostrar conteúdo do diretório\n\ttouch - Criar arquivo\n\trm - Remover arquivo\n\techo- Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
     send(newid, buffer, strlen(buffer), 0);
 
-	do{
+	while(1){
 		
 
 		if (strncmp(buffer, "mkdir ", 6) == 0){
@@ -82,11 +82,16 @@ void *func(void *socketfd){
             pthread_mutex_unlock(&lock);
         }
 
+        if(strncmp(buffer, "exit\n", 5) != 0){
+			pthread_mutex_lock(&lock);
+            close(newid);
+            pthread_mutex_unlock(&lock);		
+        }
+
 		//Lendo mensagem e retornando a mensagem
 		bzero(&buffer, sizeof(buffer));
 		read(newid, buffer, sizeof(buffer));
-
-	}while(strncmp(buffer, "exit\n", 5) != 0);
+	}
 
 	return;
 }
@@ -158,9 +163,16 @@ void main(){
 		//Coloca a thread para gerenciar a conexão
 		pthread_create(&thread[i], NULL, func, (void*)&acc);
 
-		pthread_join(thread[i], NULL);
+		if (i >= MAX_CONNECTIONS){
+			i = 0;
+			while (i < MAX_CONNECTIONS){
+		pthread_join(thread[i++], NULL);		
+			}
+			i =0;
+		}
+		
 
-		close(acc);
+		
 		sleep(1);
 
 	}
