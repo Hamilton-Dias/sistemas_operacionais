@@ -7,7 +7,7 @@
 #include <sys/times.h>
 #include <errno.h>
 
-#define MAX_CONNECTIONS		2
+#define MAX_CONNECTIONS		5
 #define PORT 				8888
 #define SIZE 				100
 
@@ -21,10 +21,10 @@ void *func(void *socketfd){
 	char buffer[SIZE];
 	bzero(&buffer, sizeof(buffer));
 
-	strcpy(buffer, "Digite a operação que deseja realizar:\n\tmkdir - Criar (Sub)diretório\n\trmdir - Remover (Sub)diretório\n\tcd - Entrar em (sub)diretório\n\tls -l - Mostrar conteúdo do diretório\n\ttouch - Criar arquivo\n\trm - Remover arquivo\n\techo- Escrever um sequência de caracteres em um arquivo\n\t8.mostrar conteúdo do arquivo\n\n");
+	strcpy(buffer, "Digite a operação que deseja realizar:\n\tmkdir - Criar (Sub)diretório\n\trmdir - Remover (Sub)diretório\n\tcd - Entrar em (sub)diretório\n\tls -l - Mostrar conteúdo do diretório\n\ttouch - Criar arquivo\n\trm - Remover arquivo\n\techo - Escrever um sequência de caracteres em um arquivo\n\tcat -.mostrar conteúdo do arquivo\n\n");
     send(newid, buffer, strlen(buffer), 0);
 
-	while(1){
+	do{
 		
 
 		if (strncmp(buffer, "mkdir ", 6) == 0){
@@ -82,16 +82,11 @@ void *func(void *socketfd){
             pthread_mutex_unlock(&lock);
         }
 
-        if(strncmp(buffer, "exit\n", 5) != 0){
-			pthread_mutex_lock(&lock);
-            close(newid);
-            pthread_mutex_unlock(&lock);		
-        }
-
 		//Lendo mensagem e retornando a mensagem
 		bzero(&buffer, sizeof(buffer));
 		read(newid, buffer, sizeof(buffer));
-	}
+
+	}while(strncmp(buffer, "exit\n", 5) != 0);
 
 	return;
 }
@@ -151,29 +146,23 @@ void main(){
 		
 		int lenght = sizeof(aux);
 
-		//ACCEPT('RECEBENDO O SOCKET','NOME DO SOCKET', TAMANHO DESSE SOCKET)
-		int acc = accept(socketfd, (struct sockaddr*)&servaddr, &lenght);
-		if (acc < 0){
-			printf("Client not accepted!\n");
-			exit(0);
-		}
-
-		printf("Client accepted..\n");
-
-		//Coloca a thread para gerenciar a conexão
-		pthread_create(&thread[i], NULL, func, (void*)&acc);
-
-		if (i >= MAX_CONNECTIONS){
-			i = 0;
-			while (i < MAX_CONNECTIONS){
-		pthread_join(thread[i++], NULL);		
+		for(i=0;i<MAX_CONNECTIONS;i++){
+			//ACCEPT('RECEBENDO O SOCKET','NOME DO SOCKET', TAMANHO DESSE SOCKET)
+			int acc = accept(socketfd, (struct sockaddr*)&servaddr, &lenght);
+			if (acc < 0){
+				printf("Client not accepted!\n");
+				exit(0);
 			}
-			i =0;
-		}
-		
 
-		
-		sleep(1);
+			printf("Client accepted..\n");
+
+			//Coloca a thread para gerenciar a conexão
+			pthread_create(&thread[i], NULL, func, (void*)&acc);
+		}
+
+        for(int i = 0; i < MAX_CONNECTIONS; i++){
+            pthread_join(thread[i], NULL);
+        }
 
 	}
 
